@@ -34,8 +34,8 @@
 /**
  * @brief Functions that implement FreeRTOS tasks.
  */
-static void prvTask1( void * pvParams );
-static void prvTask2( void * pvParams );
+static void prvTask1(void *pvParams);
+static void prvTask2(void *pvParams);
 /*-----------------------------------------------------------*/
 
 /**
@@ -47,41 +47,40 @@ static SemaphoreHandle_t xMutex = NULL;
 /**
  * @brief Tutorial entry point.
  */
-int main( void )
+int main(void)
 {
     BaseType_t xTaskCreationResult = pdFAIL;
 
-    xTaskCreationResult = xTaskCreate( prvTask1,
-                                       "Task1",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY,
-                                       NULL );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvTask1,
+                                      "Task1",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY,
+                                      NULL);
+    configASSERT(xTaskCreationResult == pdPASS);
 
-    xTaskCreationResult = xTaskCreate( prvTask2,
-                                       "Task2",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY,
-                                       NULL );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvTask2,
+                                      "Task2",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY ,
+                                      NULL);
+    configASSERT(xTaskCreationResult == pdPASS);
 
     /*
      * TODO 1 - Create a mutex using xSemaphoreCreateMutex API.
      *
      * Assign the return value to xMutex.
      */
-
-    configASSERT( xMutex != NULL );
+    xMutex = xSemaphoreCreateMutex();
+    configASSERT(xMutex != NULL);
 
     /* Start the scheduler. */
     vTaskStartScheduler();
 
     /* Should not reach here. */
-    for( ;; )
+    for (;;)
     {
-
     }
 
     /* Just to make the compiler happy. */
@@ -89,14 +88,14 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
-static void prvTask1( void * pvParams )
+static void prvTask1(void *pvParams)
 {
     BaseType_t xSemaphoreGiveResult = pdFAIL;
 
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
         /*
          * TODO 2 - Take the mutex using xSemaphoreTake API.
@@ -105,9 +104,9 @@ static void prvTask1( void * pvParams )
          * xSemaphore   xMutex
          * xBlockTime   portMAX_DELAY
          */
-
+        xSemaphoreTake(xMutex, portMAX_DELAY);
         {
-            fprintf( stderr, "Task 1 is running...\r\n" );
+            fprintf(stderr, "Task 1 is running...\r\n");
         }
         /*
          * TODO 3 - Give the mutex using xSemaphoreGive API.
@@ -117,23 +116,22 @@ static void prvTask1( void * pvParams )
          *
          * Assign the return value to xSemaphoreGiveResult.
          */
+        xSemaphoreGiveResult = xSemaphoreGive(xMutex);
+        configASSERT(xSemaphoreGiveResult == pdPASS);
 
-        configASSERT( xSemaphoreGiveResult == pdPASS );
-
-        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
-
 }
 /*-----------------------------------------------------------*/
 
-static void prvTask2( void * pvParams )
+static void prvTask2(void *pvParams)
 {
     BaseType_t xSemaphoreGiveResult = pdFAIL;
 
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
         /*
          * TODO 4 - Take the mutex using xSemaphoreTake API.
@@ -142,9 +140,9 @@ static void prvTask2( void * pvParams )
          * xSemaphore   xMutex
          * xBlockTime   portMAX_DELAY
          */
-
+        xSemaphoreTake(xMutex, portMAX_DELAY);
         {
-            fprintf( stderr, "Task 2 is running...\r\n" );
+            fprintf(stderr, "Task 2 is running...\r\n");
         }
         /*
          * TODO 5 - Give the mutex using xSemaphoreGive API.
@@ -154,10 +152,10 @@ static void prvTask2( void * pvParams )
          *
          * Assign the return value to xSemaphoreGiveResult.
          */
+        xSemaphoreGiveResult = xSemaphoreGive(xMutex);
+        configASSERT(xSemaphoreGiveResult == pdPASS);
 
-        configASSERT( xSemaphoreGiveResult == pdPASS );
-
-        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 /*-----------------------------------------------------------*/
