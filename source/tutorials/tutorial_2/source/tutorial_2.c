@@ -53,14 +53,41 @@ int main( void )
      * pvParameters     NULL
      * uxPriority       tskIDLE_PRIORITY
      * pxCreatedTask    NULL
-     *
+     *  
      * Assign the return value to xTaskCreationResult.
      */
+    
+     /* Example of controlling a task using its handle */
+    /*
+        xTaskCreate(
+            prvTaskFunction,           Function executed by the task
+            "MyTask",                  Task name (for debugging)
+            configMINIMAL_STACK_SIZE,  Stack size for the task
+            NULL,                      No parameters passed to the task
+            tskIDLE_PRIORITY,          Task priority (lowest)
+            &xMyTaskHandle             Store task handle here to control the task later
+        );
 
-    configASSERT( xTaskCreationResult == pdPASS );
+        // Use the task handle to control the task
+        vTaskSuspend(xMyTaskHandle);        Pause the task
+        vTaskResume(xMyTaskHandle);         Resume the task
+        vTaskDelete(xMyTaskHandle);         Delete the task
+        vTaskPrioritySet(xMyTaskHandle, tskIDLE_PRIORITY + 2);  Change task priority
+    */
+
+    xTaskCreationResult = xTaskCreate(
+        prvTaskFunction,          // Task function
+        "MyTask",                 // Task name
+        configMINIMAL_STACK_SIZE, // Stack size
+        NULL,                     // Parameter
+        tskIDLE_PRIORITY,         // Priorty
+        NULL                      // pxCreatedTask   
+
+    );
+    configASSERT( xTaskCreationResult == pdPASS);
 
     /* TODO 2 - Call vTaskStartScheduler to start the scheduler. */
-
+    vTaskStartScheduler();
     /* Should not reach here. */
     for( ;; )
     {
