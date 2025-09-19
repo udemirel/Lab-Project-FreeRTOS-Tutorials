@@ -34,16 +34,16 @@
 /**
  * @brief Definitions of event bits in the event group.
  */
-#define EVENT_1_BIT ( 1UL << 0UL )
-#define EVENT_2_BIT ( 1UL << 1UL )
+#define EVENT_1_BIT (1UL << 0UL)
+#define EVENT_2_BIT (1UL << 1UL)
 /*-----------------------------------------------------------*/
 
 /**
  * @brief Functions that implement FreeRTOS tasks.
  */
-static void prvEventGeneratorTask( void * pvParams );
-static void prvEventHandlerTask1( void * pvParams );
-static void prvEventHandlerTask2( void * pvParams );
+static void prvEventGeneratorTask(void *pvParams);
+static void prvEventHandlerTask1(void *pvParams);
+static void prvEventHandlerTask2(void *pvParams);
 /*-----------------------------------------------------------*/
 
 /**
@@ -55,49 +55,48 @@ static EventGroupHandle_t xEventGroup = NULL;
 /**
  * @brief Tutorial entry point.
  */
-int main( void )
+int main(void)
 {
     BaseType_t xTaskCreationResult = pdFAIL;
 
-    xTaskCreationResult = xTaskCreate( prvEventGeneratorTask,
-                                       "Generator",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY,
-                                       NULL );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvEventGeneratorTask,
+                                      "Generator",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY,
+                                      NULL);
+    configASSERT(xTaskCreationResult == pdPASS);
 
-    xTaskCreationResult = xTaskCreate( prvEventHandlerTask1,
-                                       "Handler1",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY + 1,
-                                       NULL );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvEventHandlerTask1,
+                                      "Handler1",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY + 1,
+                                      NULL);
+    configASSERT(xTaskCreationResult == pdPASS);
 
-    xTaskCreationResult = xTaskCreate( prvEventHandlerTask2,
-                                       "Handler2",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY + 2,
-                                       NULL );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvEventHandlerTask2,
+                                      "Handler2",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY + 1,
+                                      NULL);
+    configASSERT(xTaskCreationResult == pdPASS);
 
     /*
      * TODO 1 - Create event group using xEventGroupCreate API.
      *
      * Assign the return value to xEventGroup.
      */
-
-    configASSERT( xEventGroup != NULL );
+    xEventGroup = xEventGroupCreate();
+    configASSERT(xEventGroup != NULL);
 
     /* Start the scheduler. */
     vTaskStartScheduler();
 
     /* Should not reach here. */
-    for( ;; )
+    for (;;)
     {
-
     }
 
     /* Just to make the compiler happy. */
@@ -105,14 +104,14 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
-static void prvEventGeneratorTask( void * pvParams )
+static void prvEventGeneratorTask(void *pvParams)
 {
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
-        fprintf( stderr, "Generating event 1...\r\n" );
+        fprintf(stderr, "Generating event 1...\r\n");
 
         /*
          * TODO 2 - Set EVENT_1_BIT in the event group using xEventGroupSetBits
@@ -122,11 +121,10 @@ static void prvEventGeneratorTask( void * pvParams )
          * xEventGroup  xEventGroup
          * uxBitsToSet  EVENT_1_BIT
          */
+        xEventGroupSetBits(xEventGroup, EVENT_1_BIT);
+        vTaskDelay(pdMS_TO_TICKS(500));
 
-
-        vTaskDelay( pdMS_TO_TICKS( 500 ) );
-
-        fprintf( stderr, "Generating event 2...\r\n" );
+        fprintf(stderr, "Generating event 2...\r\n");
 
         /*
          * TODO 3 - Set EVENT_2_BIT in the event group using xEventGroupSetBits
@@ -136,23 +134,22 @@ static void prvEventGeneratorTask( void * pvParams )
          * xEventGroup  xEventGroup
          * uxBitsToSet  EVENT_2_BIT
          */
+        xEventGroupSetBits(xEventGroup, EVENT_2_BIT);
+        fprintf(stderr, "Generated both the events...\r\n");
 
-
-        fprintf( stderr, "Generated both the events...\r\n" );
-
-        vTaskDelay( pdMS_TO_TICKS( 500 ) );
+        vTaskDelay(pdMS_TO_TICKS(500));
     }
 }
 /*-----------------------------------------------------------*/
 
-static void prvEventHandlerTask1( void * pvParams )
+static void prvEventHandlerTask1(void *pvParams)
 {
     EventBits_t xEventBitsValue;
 
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
         /*
          * TODO 4 - Wait for events using xEventGroupWaitBits API.
@@ -166,28 +163,28 @@ static void prvEventHandlerTask1( void * pvParams )
          *
          * Assign the return value to xEventBitsValue.
          */
-
-
-        if( ( xEventBitsValue & EVENT_1_BIT ) != 0 )
+        xEventBitsValue = xEventGroupWaitBits(xEventGroup, (EVENT_1_BIT | EVENT_2_BIT), pdTRUE, pdTRUE, portMAX_DELAY);
+       //  xEventBitsValue = xEventGroupWaitBits(xEventGroup, (EVENT_1_BIT), pdTRUE, pdTRUE, portMAX_DELAY);
+        if ((xEventBitsValue & EVENT_1_BIT) != 0)
         {
-            fprintf( stderr, "Handler Task 1: Handling  event 1...\r\n" );
+            fprintf(stderr, "Handler Task 1: Handling  event 1...\r\n");
         }
-        if( ( xEventBitsValue & EVENT_2_BIT ) != 0 )
+        if ((xEventBitsValue & EVENT_2_BIT) != 0)
         {
-            fprintf( stderr, "Handler Task 1: Handling  event 2...\r\n" );
+            fprintf(stderr, "Handler Task 1: Handling  event 2...\r\n");
         }
     }
 }
 /*-----------------------------------------------------------*/
 
-static void prvEventHandlerTask2( void * pvParams )
+static void prvEventHandlerTask2(void *pvParams)
 {
     EventBits_t xEventBitsValue;
 
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
         /*
          * TODO 5 - Wait for events using xEventGroupWaitBits API.
@@ -201,15 +198,14 @@ static void prvEventHandlerTask2( void * pvParams )
          *
          * Assign the return value to xEventBitsValue.
          */
-
-
-        if( ( xEventBitsValue & EVENT_1_BIT ) != 0 )
+        xEventBitsValue = xEventGroupWaitBits(xEventGroup, (EVENT_1_BIT | EVENT_2_BIT), pdTRUE, pdTRUE, portMAX_DELAY);
+        if ((xEventBitsValue & EVENT_1_BIT) != 0)
         {
-            fprintf( stderr, "Handler Task 2: Handling  event 1...\r\n" );
+            fprintf(stderr, "Handler Task 2: Handling  event 1...\r\n");
         }
-        if( ( xEventBitsValue & EVENT_2_BIT ) != 0 )
+        if ((xEventBitsValue & EVENT_2_BIT) != 0)
         {
-            fprintf( stderr, "Handler Task 2: Handling  event 2...\r\n" );
+            fprintf(stderr, "Handler Task 2: Handling  event 2...\r\n");
         }
     }
 }
