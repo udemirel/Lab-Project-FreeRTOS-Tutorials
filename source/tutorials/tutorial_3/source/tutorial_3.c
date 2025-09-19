@@ -61,19 +61,18 @@ int main( void )
      * 4. Stack yönetimi kolaylığı: Her görevin stack boyutu önceden bilinir ve sabittir.
      * Gerçek zamanlı ve gömülü sistemlerde bu nedenlerle statik tahsis tercih edilir.
      */
-    xCreatedTaskHandle = xTaskCreateStatic(prvTaskFunction,
-     "Task1",
-     configMINIMAL_STACK_SIZE,
-     NULL,
-     tskIDLE_PRIORITY,
-     &( xTaskStackBuffer[ 0 ] ),
-     &( xTaskTcbBuffer )
-     
-    );
+    xCreatedTaskHandle = xTaskCreateStatic(
+        prvTaskFunction,
+        "Task1",
+        configMINIMAL_STACK_SIZE,
+        NULL,
+        tskIDLE_PRIORITY,
+        &(xTaskStackBuffer[0]),
+        &(xTaskTcbBuffer));
     configASSERT( xCreatedTaskHandle != NULL );
 
     /* TODO 2 - Call vTaskStartScheduler to start the scheduler. */
-vTaskStartScheduler();
+    vTaskStartScheduler();
     /* Should not reach here. */
     for( ;; )
     {

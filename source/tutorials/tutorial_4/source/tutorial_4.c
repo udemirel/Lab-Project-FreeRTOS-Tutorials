@@ -57,6 +57,13 @@ int main( void )
      *
      * Assign the return value to xTaskCreationResult.
      */
+    xTaskCreationResult = xTaskCreate(
+        prvHighPriorityTaskFunction,
+        "High",
+        configMINIMAL_STACK_SIZE,
+        NULL,
+        1,
+        NULL);
     configASSERT( xTaskCreationResult == pdPASS );
 
     /* TODO 2 - Create a FreeRTOS task using xTaskCreate API which
@@ -72,6 +79,14 @@ int main( void )
      *
      * Assign the return value to xTaskCreationResult.
      */
+    xTaskCreationResult = xTaskCreate(
+        prvLowPriorityTaskFunction,
+        "Low",
+        configMINIMAL_STACK_SIZE,
+        NULL,
+        0,
+        NULL
+    );
     configASSERT( xTaskCreationResult == pdPASS );
 
     /* Start the scheduler. */
@@ -98,7 +113,7 @@ static void prvHighPriorityTaskFunction( void * pvParams )
     for( ;; )
     {
         fprintf( stderr, "Tutorial 4 high priority task running...\r\n" );
-
+        //vTaskDelay(pdMS_TO_TICKS(1000)); // 1 saniye bekle
         for( i = 0; i < 1000000000; i++ )
         {
             /* This loop is just a very crude delay implementation. */
@@ -117,7 +132,7 @@ static void prvLowPriorityTaskFunction( void * pvParams )
     for( ;; )
     {
         fprintf( stderr, "Tutorial 4 low priority task running...\r\n" );
-
+        //vTaskDelay(pdMS_TO_TICKS(1000)); // 1 saniye bekle
         for( i = 0; i < 1000000000; i++ )
         {
             /* This loop is just a very crude delay implementation. */
