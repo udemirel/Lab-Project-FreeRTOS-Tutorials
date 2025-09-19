@@ -1,24 +1,10 @@
 /*
- * FreeRTOS-Tutorials
- * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * SPDX-License-Identifier: MIT-0
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this
- * software and associated documentation files (the "Software"), to deal in the Software
- * without restriction, including without limitation the rights to use, copy, modify,
- * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * https://www.FreeRTOS.org
- * https://github.com/FreeRTOS
+Concepts
+Each FreeRTOS task requires 2 blocks of memory -
+
+Task Control Block (TCB) - FreeRTOS-Kernel uses it to store the control information of a task.
+Stack - Each task maintains its own stack.
+If a task is created using xTaskCreate API, then the memory needed for TCB and Stack is allocated from the FreeRTOS heap by calling pvPortMalloc. If a task is created using xTaskCreateStatic API, then the memory needed for TCB and Stack is provided by the application writer.
  *
  */
 
@@ -64,10 +50,30 @@ int main( void )
      *
      * Assign the return value to xCreatedTaskHandle.
      */
+    // FreeRTOS’ta xTaskCreate() heap kullanır, xTaskCreateStatic() stack ve TCB’yi statik olarak yönetir.
+    /*
+     * NOT:
+     * xTaskCreate yerine xTaskCreateStatic kullanmak, Görev Kontrol Bloğu (TCB) ve stack’in
+     * statik olarak belirlenmesini sağlar. Bunun avantajları:
+     * 1. Deterministik davranış: Heap tahsisi sırasında oluşabilecek gecikmeler yok.
+     * 2. Daha iyi performans: Statik tahsis, runtime malloc’a göre daha hızlıdır.
+     * 3. Güvenlik ve kararlılık: Heap parçalanması veya tahsis hatası riski yok.
+     * 4. Stack yönetimi kolaylığı: Her görevin stack boyutu önceden bilinir ve sabittir.
+     * Gerçek zamanlı ve gömülü sistemlerde bu nedenlerle statik tahsis tercih edilir.
+     */
+    xCreatedTaskHandle = xTaskCreateStatic(prvTaskFunction,
+     "Task1",
+     configMINIMAL_STACK_SIZE,
+     NULL,
+     tskIDLE_PRIORITY,
+     &( xTaskStackBuffer[ 0 ] ),
+     &( xTaskTcbBuffer )
+     
+    );
     configASSERT( xCreatedTaskHandle != NULL );
 
     /* TODO 2 - Call vTaskStartScheduler to start the scheduler. */
-
+vTaskStartScheduler();
     /* Should not reach here. */
     for( ;; )
     {

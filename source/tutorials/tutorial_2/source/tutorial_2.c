@@ -74,7 +74,7 @@ int main( void )
         vTaskDelete(xMyTaskHandle);         Delete the task
         vTaskPrioritySet(xMyTaskHandle, tskIDLE_PRIORITY + 2);  Change task priority
     */
-
+    
     xTaskCreationResult = xTaskCreate(
         prvTaskFunction,          // Task function
         "MyTask",                 // Task name
