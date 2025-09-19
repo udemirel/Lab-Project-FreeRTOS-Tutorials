@@ -43,7 +43,11 @@ static void prvReceiverTask( void * pvParams );
  */
 static QueueHandle_t xQueue;
 /*-----------------------------------------------------------*/
-
+typedef struct
+{
+    int value1;
+    int value2;
+} TwoValues_t;
 /**
  * @brief Tutorial entry point.
  */
@@ -76,7 +80,7 @@ int main( void )
      *
      * Assign the return value to xQueue.
      */
-
+    xQueue = xQueueCreate(5, sizeof(TwoValues_t));
     configASSERT( xQueue != NULL );
 
     /* Start the scheduler. */
@@ -93,17 +97,21 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
+
+
 static void prvSenderTask( void * pvParams )
 {
     BaseType_t xQueueSendResult;
     UBaseType_t uxValueToSend = 0;
-
+    TwoValues_t test = {.value1 = 0 , .value2 = 0} ; 
     /* Silence warning about unused parameters. */
     ( void ) pvParams;
 
     for( ;; )
     {
         uxValueToSend++;
+        test.value1++;
+        test.value2++;
 
         /* TODO 2 - Send uxValueToSend to the queue using xQueueSend API.
          *
@@ -114,7 +122,8 @@ static void prvSenderTask( void * pvParams )
          *
          * Assign the return value to xQueueSendResult.
          */
-
+        // xQueueSendResult = xQueueSend(xQueue, &(uxValueToSend), portMAX_DELAY);
+        xQueueSendResult = xQueueSend(xQueue, &(test), portMAX_DELAY);
         configASSERT( xQueueSendResult == pdPASS );
 
         vTaskDelay( pdMS_TO_TICKS( 1000 ) );
@@ -124,7 +133,8 @@ static void prvSenderTask( void * pvParams )
 
 static void prvReceiverTask( void * pvParams )
 {
-    UBaseType_t uxReceivedValue;
+   // UBaseType_t uxReceivedValue;
+    TwoValues_t receivedTest; 
 
     /* Silence warning about unused parameters. */
     ( void ) pvParams;
@@ -138,9 +148,12 @@ static void prvReceiverTask( void * pvParams )
          * pvBuffer         &( uxReceivedValue )
          * xTicksToWait     portMAX_DELAY
          */
+        // xQueueReceive(xQueue,  &( uxReceivedValue ),portMAX_DELAY);        
+        xQueueReceive(xQueue,  &( receivedTest ),portMAX_DELAY);        
 
-
-        fprintf( stderr, "Value received from the queue: %lu\r\n", uxReceivedValue );
+        // fprintf( stderr, "Value received from the queue: %lu\r\n", uxReceivedValue );
+        fprintf( stderr, "Value received test 1  the queue: %d\r\n", receivedTest.value1 );
+        fprintf( stderr, "Value received test 2 the queue: %d\r\n", receivedTest.value2 );
         fprintf( stderr, "Number of items in the queue: %lu.\r\n", uxQueueMessagesWaiting( xQueue ) );
     }
 }
