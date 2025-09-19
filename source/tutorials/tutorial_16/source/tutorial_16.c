@@ -34,17 +34,17 @@
 /**
  * @brief Definitions of event bits in the event group.
  */
-#define TASK_1_BIT ( 1UL << 0UL )
-#define TASK_2_BIT ( 1UL << 1UL )
-#define TASK_3_BIT ( 1UL << 2UL )
+#define TASK_1_BIT (1UL << 0UL)
+#define TASK_2_BIT (1UL << 1UL)
+#define TASK_3_BIT (1UL << 2UL)
 /*-----------------------------------------------------------*/
 
 /**
  * @brief Functions that implement FreeRTOS tasks.
  */
-static void prvTask1( void * pvParams );
-static void prvTask2( void * pvParams );
-static void prvTask3( void * pvParams );
+static void prvTask1(void *pvParams);
+static void prvTask2(void *pvParams);
+static void prvTask3(void *pvParams);
 /*-----------------------------------------------------------*/
 
 /**
@@ -56,49 +56,48 @@ static EventGroupHandle_t xEventGroup = NULL;
 /**
  * @brief Tutorial entry point.
  */
-int main( void )
+int main(void)
 {
     BaseType_t xTaskCreationResult = pdFAIL;
 
-    xTaskCreationResult = xTaskCreate( prvTask1,
-                                       "Task1",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY,
-                                       NULL );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvTask1,
+                                      "Task1",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY,
+                                      NULL);
+    configASSERT(xTaskCreationResult == pdPASS);
 
-    xTaskCreationResult = xTaskCreate( prvTask2,
-                                       "Task2",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY,
-                                       NULL );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvTask2,
+                                      "Task2",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY,
+                                      NULL);
+    configASSERT(xTaskCreationResult == pdPASS);
 
-    xTaskCreationResult = xTaskCreate( prvTask3,
-                                       "Task3",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY,
-                                       NULL );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvTask3,
+                                      "Task3",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY,
+                                      NULL);
+    configASSERT(xTaskCreationResult == pdPASS);
 
     /*
      * TODO 1 - Create event group using xEventGroupCreate API.
      *
      * Assign the return value to xEventGroup.
      */
-
-    configASSERT( xEventGroup != NULL );
+    xEventGroup = xEventGroupCreate();
+    configASSERT(xEventGroup != NULL);
 
     /* Start the scheduler. */
     vTaskStartScheduler();
 
     /* Should not reach here. */
-    for( ;; )
+    for (;;)
     {
-
     }
 
     /* Just to make the compiler happy. */
@@ -106,14 +105,14 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
-static void prvTask1( void * pvParams )
+static void prvTask1(void *pvParams)
 {
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
-        fprintf( stderr, "Task 1 reached sync point.\r\n" );
+        fprintf(stderr, "Task 1 reached sync point.\r\n");
 
         /*
          * TODO 2 - Synchronize using xEventGroupSync API.
@@ -125,22 +124,22 @@ static void prvTask1( void * pvParams )
          * xTicksToWait     portMAX_DELAY
          */
 
+        xEventGroupSync(xEventGroup, TASK_1_BIT, (TASK_1_BIT | TASK_2_BIT | TASK_3_BIT), portMAX_DELAY);
+        fprintf(stderr, "Task 1 exited sync point.\r\n");
 
-        fprintf( stderr, "Task 1 exited sync point.\r\n" );
-
-        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 /*-----------------------------------------------------------*/
 
-static void prvTask2( void * pvParams )
+static void prvTask2(void *pvParams)
 {
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
-        fprintf( stderr, "Task 2 reached sync point.\r\n" );
+        fprintf(stderr, "Task 2 reached sync point.\r\n");
 
         /*
          * TODO 3 - Synchronize using xEventGroupSync API.
@@ -151,23 +150,22 @@ static void prvTask2( void * pvParams )
          * uxBitsToWaitFor  ( TASK_1_BIT | TASK_2_BIT | TASK_3_BIT )
          * xTicksToWait     portMAX_DELAY
          */
+        xEventGroupSync(xEventGroup, TASK_2_BIT, (TASK_1_BIT | TASK_2_BIT | TASK_3_BIT), portMAX_DELAY);
+        fprintf(stderr, "Task 2 exited sync point.\r\n");
 
-
-        fprintf( stderr, "Task 2 exited sync point.\r\n" );
-
-        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 /*-----------------------------------------------------------*/
 
-static void prvTask3( void * pvParams )
+static void prvTask3(void *pvParams)
 {
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
-        fprintf( stderr, "Task 3 reached sync point.\r\n" );
+        fprintf(stderr, "Task 3 reached sync point.\r\n");
 
         /*
          * TODO 4 - Synchronize using xEventGroupSync API.
@@ -178,11 +176,10 @@ static void prvTask3( void * pvParams )
          * uxBitsToWaitFor  ( TASK_1_BIT | TASK_2_BIT | TASK_3_BIT )
          * xTicksToWait     portMAX_DELAY
          */
+        xEventGroupSync(xEventGroup, TASK_3_BIT, (TASK_1_BIT | TASK_2_BIT | TASK_3_BIT), portMAX_DELAY);
+        fprintf(stderr, "Task 3 exited sync point.\r\n");
 
-
-        fprintf( stderr, "Task 3 exited sync point.\r\n" );
-
-        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 /*-----------------------------------------------------------*/
