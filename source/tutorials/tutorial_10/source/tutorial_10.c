@@ -34,7 +34,7 @@
 /**
  * @brief Function that implement FreeRTOS task.
  */
-static void prvReceiverTask( void * pvParams );
+static void prvReceiverTask(void *pvParams);
 /*-----------------------------------------------------------*/
 
 /**
@@ -51,17 +51,17 @@ static UBaseType_t uxCounter = 0;
 /**
  * @brief Tutorial entry point.
  */
-int main( void )
+int main(void)
 {
     BaseType_t xTaskCreationResult = pdFAIL;
 
-    xTaskCreationResult = xTaskCreate( prvReceiverTask,
-                                       "Receiver",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY,
-                                       NULL );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvReceiverTask,
+                                      "Receiver",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY,
+                                      NULL);
+    configASSERT(xTaskCreationResult == pdPASS);
 
     /* TODO 1 - Create a queue capable of holding 5 UBaseType_t using
      * xQueueCreate API.
@@ -72,16 +72,15 @@ int main( void )
      *
      * Assign the return value to xQueue.
      */
-
-    configASSERT( xQueue != NULL );
+    xQueue = xQueueCreate(5, sizeof(UBaseType_t));
+    configASSERT(xQueue != NULL);
 
     /* Start the scheduler. */
     vTaskStartScheduler();
 
     /* Should not reach here. */
-    for( ;; )
+    for (;;)
     {
-
     }
 
     /* Just to make the compiler happy. */
@@ -89,14 +88,14 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
-static void prvReceiverTask( void * pvParams )
+static void prvReceiverTask(void *pvParams)
 {
     UBaseType_t uxReceivedValue;
 
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
         /* TODO 2 - Receive from the queue using xQueueReceive API.
          *
@@ -106,21 +105,21 @@ static void prvReceiverTask( void * pvParams )
          * xTicksToWait     portMAX_DELAY
          */
 
-
-        fprintf( stderr, "Value received from the queue: %lu\r\n", uxReceivedValue );
-        fprintf( stderr, "Number of items in the queue: %lu.\r\n", uxQueueMessagesWaiting( xQueue ) );
+        xQueueReceive(xQueue, &(uxReceivedValue), portMAX_DELAY);
+        fprintf(stderr, "Value received from the queue: %lu\r\n", uxReceivedValue);
+        fprintf(stderr, "Number of items in the queue: %lu.\r\n", uxQueueMessagesWaiting(xQueue));
     }
 }
 /*-----------------------------------------------------------*/
 
-void vApplicationTickHook( void )
+void vApplicationTickHook(void)
 {
     BaseType_t xQueueSendResult = pdFAIL;
     BaseType_t xHighPriorityTaskWoken = pdFALSE;
 
     uxCounter++;
 
-    if( ( uxCounter % 1000 ) == 0 )
+    if ((uxCounter % 1000) == 0)
     {
         /* TODO 3 - Send uxCounter to the queue using xQueueSendFromISR API.
          *
@@ -131,10 +130,15 @@ void vApplicationTickHook( void )
          *
          * Assign the return value to xQueueSendResult.
          */
-
-        configASSERT( xQueueSendResult == pdPASS );
+        //xQueueSend(xQueue, &(uxCounter), &(xHighPriorityTaskWoken));
+        xQueueSendResult = xQueueSendFromISR(
+                      xQueue,
+                      &uxCounter,
+                      &xHighPriorityTaskWoken
+                  );
+        configASSERT(xQueueSendResult == pdPASS);
     }
 
-    portYIELD_FROM_ISR( xHighPriorityTaskWoken );
+    portYIELD_FROM_ISR(xHighPriorityTaskWoken);
 }
 /*-----------------------------------------------------------*/
