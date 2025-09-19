@@ -34,54 +34,53 @@
 /**
  * @brief Functions that implement FreeRTOS tasks.
  */
-static void prvTask1( void * pvParams );
-static void prvTask2( void * pvParams );
+static void prvTask1(void *pvParams);
+static void prvTask2(void *pvParams);
 /*-----------------------------------------------------------*/
 
 /**
  * @brief Semaphore used in this program.
  */
-static SemaphoreHandle_t xSemaphore = NULL;
+static SemaphoreHandle_t xSemaphoreTest = NULL;
 /*-----------------------------------------------------------*/
 
 /**
  * @brief Tutorial entry point.
  */
-int main( void )
+int main(void)
 {
     BaseType_t xTaskCreationResult = pdFAIL;
 
-    xTaskCreationResult = xTaskCreate( prvTask1,
-                                       "Task1",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY + 1,
-                                       NULL );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvTask1,
+                                      "Task1",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY+1 ,
+                                      NULL);
+    configASSERT(xTaskCreationResult == pdPASS);
 
-    xTaskCreationResult = xTaskCreate( prvTask2,
-                                       "Task2",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY,
-                                       NULL );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvTask2,
+                                      "Task2",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY,
+                                      NULL);
+    configASSERT(xTaskCreationResult == pdPASS);
 
     /*
      * TODO 1 - Create a binary semaphore using xSemaphoreCreateBinary API.
      *
      * Assign the return value to xSemaphore.
      */
-
-    configASSERT( xSemaphore != NULL );
+    xSemaphoreTest = xSemaphoreCreateBinary();
+    configASSERT(xSemaphoreTest != NULL);
 
     /* Start the scheduler. */
     vTaskStartScheduler();
 
     /* Should not reach here. */
-    for( ;; )
+    for (;;)
     {
-
     }
 
     /* Just to make the compiler happy. */
@@ -89,12 +88,12 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
-static void prvTask1( void * pvParams )
+static void prvTask1(void *pvParams)
 {
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
         /*
          * TODO 2 - Take the semaphore using the xSemaphoreTake API.
@@ -103,23 +102,22 @@ static void prvTask1( void * pvParams )
          * xSemaphore   xSemaphore
          * xBlockTime   portMAX_DELAY
          */
-
-        fprintf( stderr, "Task 1 is running...\r\n" );
+        xSemaphoreTake(xSemaphoreTest, portMAX_DELAY);
+        fprintf(stderr, "Task 1 is running...\r\n");
     }
-
 }
 /*-----------------------------------------------------------*/
 
-static void prvTask2( void * pvParams )
+static void prvTask2(void *pvParams)
 {
     BaseType_t xSemaphoreGiveResult = pdFAIL;
 
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
-        fprintf( stderr, "Task 2 - signalling Task 1...\r\n" );
+        fprintf(stderr, "Task 2 - signalling Task 1...\r\n");
 
         /*
          * TODO 3 - Give the semaphore using the xSemaphoreGive API.
@@ -129,12 +127,12 @@ static void prvTask2( void * pvParams )
          *
          * Assign the return value to xSemaphoreGiveResult.
          */
+        xSemaphoreGiveResult = xSemaphoreGive(xSemaphoreTest);
+        configASSERT(xSemaphoreGiveResult == pdPASS);
 
-        configASSERT( xSemaphoreGiveResult == pdPASS );
+        fprintf(stderr, "Task 2 is running...\r\n");
 
-        fprintf( stderr, "Task 2 is running...\r\n" );
-
-        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 /*-----------------------------------------------------------*/
