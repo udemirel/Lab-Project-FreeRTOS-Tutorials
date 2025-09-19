@@ -55,7 +55,7 @@ int main( void )
                                        "High",
                                        configMINIMAL_STACK_SIZE,
                                        NULL,
-                                       tskIDLE_PRIORITY + 1,
+                                       tskIDLE_PRIORITY + 2,
                                        NULL );
     configASSERT( xTaskCreationResult == pdPASS );
 
@@ -92,7 +92,7 @@ static void prvHighPriorityTask( void * pvParams )
     for( ;; )
     {
         vTaskDelay( pdMS_TO_TICKS( 1000 ) );
-
+        fprintf( stderr, "prvHighPriorityTask pri is %lu\r\n", uxTaskPriorityGet( NULL ) );
         xSemaphoreTake( xMutex, portMAX_DELAY );
     }
 }
