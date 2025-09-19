@@ -34,13 +34,13 @@
 /**
  * @brief Timer callback function.
  */
-static void prvTimerCallback( TimerHandle_t xTimer );
+static void prvTimerCallback(TimerHandle_t xTimer);
 /*-----------------------------------------------------------*/
 
 /**
  * @brief Tutorial entry point.
  */
-int main( void )
+int main(void)
 {
     BaseType_t xTimerStartResult = pdFAIL;
     TimerHandle_t xAutoReloadTimer, xOneShotTimer;
@@ -58,8 +58,12 @@ int main( void )
      *
      * Assign the return value to xAutoReloadTimer.
      */
-
-    configASSERT( xAutoReloadTimer != NULL );
+    xAutoReloadTimer = xTimerCreate("AutoTimer",
+         pdMS_TO_TICKS(1000),
+          pdTRUE,
+           (void *)1, 
+           prvTimerCallback);
+    configASSERT(xAutoReloadTimer != NULL);
 
     /*
      * TODO 2 - Create a one-shot timer with 100 ms period using xTimerCreate
@@ -74,8 +78,13 @@ int main( void )
      *
      * Assign the return value to xOneShotTimer.
      */
-
-    configASSERT( xOneShotTimer != NULL );
+    xOneShotTimer = xTimerCreate(
+        "OneTimer",
+        pdMS_TO_TICKS(100),
+        pdFALSE,
+        (void *)2,
+        prvTimerCallback);
+    configASSERT(xOneShotTimer != NULL);
 
     /*
      * TODO 3 - Start the auto-reload timer using xTimerStart API.
@@ -86,8 +95,8 @@ int main( void )
      *
      * Assign the return value to xTimerStartResult.
      */
-
-    configASSERT( xTimerStartResult == pdPASS );
+    xTimerStartResult = xTimerStart(xAutoReloadTimer, 0);
+    configASSERT(xTimerStartResult == pdPASS);
 
     /*
      * TODO 4 - Start the one-shot timer using xTimerStart API.
@@ -98,16 +107,15 @@ int main( void )
      *
      * Assign the return value to xTimerStartResult.
      */
-
-    configASSERT( xTimerStartResult == pdPASS );
+    xTimerStartResult = xTimerStart(xOneShotTimer, 0);
+    configASSERT(xTimerStartResult == pdPASS);
 
     /* Start the scheduler. */
     vTaskStartScheduler();
 
     /* Should not reach here. */
-    for( ;; )
+    for (;;)
     {
-
     }
 
     /* Just to make the compiler happy. */
@@ -115,8 +123,8 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
-static void prvTimerCallback( TimerHandle_t xTimer )
+static void prvTimerCallback(TimerHandle_t xTimer)
 {
-    fprintf( stderr, "Callback for Timer ID %p running...\r\n", pvTimerGetTimerID( xTimer ) );
+    fprintf(stderr, "Callback for Timer ID %p running...\r\n", pvTimerGetTimerID(xTimer));
 }
 /*-----------------------------------------------------------*/
