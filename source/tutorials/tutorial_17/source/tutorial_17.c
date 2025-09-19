@@ -33,8 +33,8 @@
 /**
  * @brief Functions that implement FreeRTOS tasks.
  */
-static void prvTask1( void * pvParams );
-static void prvTask2( void * pvParams );
+static void prvTask1(void *pvParams);
+static void prvTask2(void *pvParams);
 /*-----------------------------------------------------------*/
 
 /**
@@ -46,33 +46,32 @@ static TaskHandle_t xTask1Handle = NULL;
 /**
  * @brief Tutorial entry point.
  */
-int main( void )
+int main(void)
 {
     BaseType_t xTaskCreationResult = pdFAIL;
 
-    xTaskCreationResult = xTaskCreate( prvTask1,
-                                       "Task1",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY + 1,
-                                       &( xTask1Handle ) );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvTask1,
+                                      "Task1",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY + 1,
+                                      &(xTask1Handle));
+    configASSERT(xTaskCreationResult == pdPASS);
 
-    xTaskCreationResult = xTaskCreate( prvTask2,
-                                       "Task2",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY,
-                                       NULL );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvTask2,
+                                      "Task2",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY,
+                                      NULL);
+    configASSERT(xTaskCreationResult == pdPASS);
 
     /* Start the scheduler. */
     vTaskStartScheduler();
 
     /* Should not reach here. */
-    for( ;; )
+    for (;;)
     {
-
     }
 
     /* Just to make the compiler happy. */
@@ -80,14 +79,14 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
-static void prvTask1( void * pvParams )
+static void prvTask1(void *pvParams)
 {
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
-        fprintf( stderr, "Task 1: Waiting for notification...\r\n" );
+        fprintf(stderr, "Task 1: Waiting for notification...\r\n");
 
         /*
          * TODO 1 - Wait for a task notification using ulTaskNotifyTake API.
@@ -97,20 +96,20 @@ static void prvTask1( void * pvParams )
          * xTicksToWait         portMAX_DELAY
          */
 
-
-        fprintf( stderr, "Task 1: Received notification...\r\n" );
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        fprintf(stderr, "Task 1: Received notification...\r\n");
     }
 }
 /*-----------------------------------------------------------*/
 
-static void prvTask2( void * pvParams )
+static void prvTask2(void *pvParams)
 {
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
-        fprintf( stderr, "Task 2: Notifying task 1...\r\n" );
+        fprintf(stderr, "Task 2: Notifying task 1...\r\n");
 
         /*
          * TODO 2 - Notify task 1 using xTaskNotifyGive API.
@@ -119,10 +118,10 @@ static void prvTask2( void * pvParams )
          * xTaskToNotify    xTask1Handle
          */
 
+        xTaskNotifyGive(xTask1Handle);
+        fprintf(stderr, "Task 2: Notified task 1...\r\n");
 
-        fprintf( stderr, "Task 2: Notified task 1...\r\n" );
-
-        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 /*-----------------------------------------------------------*/
