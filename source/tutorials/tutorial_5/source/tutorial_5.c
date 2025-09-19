@@ -1,27 +1,32 @@
 /*
- * FreeRTOS-Tutorials
- * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * SPDX-License-Identifier: MIT-0
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this
- * software and associated documentation files (the "Software"), to deal in the Software
- * without restriction, including without limitation the rights to use, copy, modify,
- * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * https://www.FreeRTOS.org
- * https://github.com/FreeRTOS
- *
- */
+Örnek Kullanim
+typedef struct {
+    int sensorPin;
+    int readInterval;
+} SensorParams_t;
 
+static void vSensorTask(void *pvParams)
+{
+    SensorParams_t *params = (SensorParams_t*)pvParams;
+    for(;;)
+    {
+        int value = readSensor(params->sensorPin);
+        printf("Sensor %d value: %d\n", params->sensorPin, value);
+        vTaskDelay(pdMS_TO_TICKS(params->readInterval));
+    }
+}
+
+int main(void)
+{
+    SensorParams_t s1 = { .sensorPin = 3, .readInterval = 1000 };
+    SensorParams_t s2 = { .sensorPin = 5, .readInterval = 2000 };
+
+    xTaskCreate(vSensorTask, "Sensor1", 100, &s1, 1, NULL);
+    xTaskCreate(vSensorTask, "Sensor2", 100, &s2, 1, NULL);
+
+    vTaskStartScheduler();
+}
+*/
 /* Standard includes. */
 #include <stdio.h>
 #include <unistd.h>
@@ -42,7 +47,8 @@ static void prvTaskFunction( void * pvParams );
 int main( void )
 {
     BaseType_t xTaskCreationResult = pdFAIL;
-
+    int a = 5;
+    int b = 6;
     /* TODO 1 - Create a FreeRTOS task using xTaskCreate API which
      * uses prvTaskFunction as the task function.
      *
@@ -56,6 +62,14 @@ int main( void )
      *
      * Assign the return value to xTaskCreationResult.
      */
+    xTaskCreationResult = xTaskCreate(
+        prvTaskFunction,
+        "Task1",
+        configMINIMAL_STACK_SIZE,
+        &a, //(void *)1,
+        tskIDLE_PRIORITY,
+        NULL
+    );
     configASSERT( xTaskCreationResult == pdPASS );
 
     /* TODO 2 - Create a FreeRTOS task using xTaskCreate API which
@@ -71,6 +85,14 @@ int main( void )
      *
      * Assign the return value to xTaskCreationResult.
      */
+    xTaskCreationResult = xTaskCreate(
+        prvTaskFunction,
+          "Task2",
+          configMINIMAL_STACK_SIZE,
+          &b, //( void * ) 2,
+          tskIDLE_PRIORITY,
+          NULL
+    );
     configASSERT( xTaskCreationResult == pdPASS );
 
     /* Start the scheduler. */
@@ -89,9 +111,11 @@ int main( void )
 
 static void prvTaskFunction( void * pvParams )
 {
+    int taskID = *(int*)pvParams; // pvParams pointer’dan değeri al    
     for( ;; )
     {
         fprintf( stderr, "Tutorial 5 task %p running...\r\n", pvParams );
+        fprintf( stderr, "Tutorial 5 task %d running...\r\n", taskID );
 
         vTaskDelay( pdMS_TO_TICKS( 1000 ) );
     }
