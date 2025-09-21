@@ -34,8 +34,8 @@
 /**
  * @brief Functions that implement FreeRTOS tasks.
  */
-static void prvReaderTask( void * pvParams );
-static void prvWriterTask( void * pvParams );
+static void prvReaderTask(void *pvParams);
+static void prvWriterTask(void *pvParams);
 /*-----------------------------------------------------------*/
 
 /**
@@ -47,25 +47,25 @@ static StreamBufferHandle_t xStreamBuffer = NULL;
 /**
  * @brief Tutorial entry point.
  */
-int main( void )
+int main(void)
 {
     BaseType_t xTaskCreationResult = pdFAIL;
 
-    xTaskCreationResult = xTaskCreate( prvReaderTask,
-                                       "Reader",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY + 1,
-                                       NULL );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvReaderTask,
+                                      "Reader",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY + 1,
+                                      NULL);
+    configASSERT(xTaskCreationResult == pdPASS);
 
-    xTaskCreationResult = xTaskCreate( prvWriterTask,
-                                       "Writer",
-                                       configMINIMAL_STACK_SIZE,
-                                       NULL,
-                                       tskIDLE_PRIORITY,
-                                       NULL );
-    configASSERT( xTaskCreationResult == pdPASS );
+    xTaskCreationResult = xTaskCreate(prvWriterTask,
+                                      "Writer",
+                                      configMINIMAL_STACK_SIZE,
+                                      NULL,
+                                      tskIDLE_PRIORITY,
+                                      NULL);
+    configASSERT(xTaskCreationResult == pdPASS);
 
     /*
      * TODO 1 - Create a stream buffer of size 10 using xStreamBufferCreate API.
@@ -76,16 +76,15 @@ int main( void )
      *
      * Assign the return value to xStreamBuffer.
      */
-
-    configASSERT( xStreamBuffer != NULL );
+    xStreamBuffer = xStreamBufferCreate(10, 5);
+    configASSERT(xStreamBuffer != NULL);
 
     /* Start the scheduler. */
     vTaskStartScheduler();
 
     /* Should not reach here. */
-    for( ;; )
+    for (;;)
     {
-
     }
 
     /* Just to make the compiler happy. */
@@ -93,15 +92,15 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
-static void prvReaderTask( void * pvParams )
+static void prvReaderTask(void *pvParams)
 {
-    uint8_t ucRxData[ 5 ];
+    uint8_t ucRxData[5];
     size_t i, uxReceivedBytes;
 
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
         /*
          * TODO 2 - Read data from the steam buffer using xStreamBufferReceive
@@ -115,31 +114,30 @@ static void prvReaderTask( void * pvParams )
          *
          * Assign the return value to uxReceivedBytes.
          */
+        uxReceivedBytes=xStreamBufferReceive(xStreamBuffer,&(ucRxData[0]), 2, portMAX_DELAY);
+        fprintf(stderr, "Received %lu byte(s)...\r\n", uxReceivedBytes);
 
-
-        fprintf( stderr, "Received %lu byte(s)...\r\n", uxReceivedBytes );
-
-        for( i = 0; i < uxReceivedBytes; i++ )
+        for (i = 0; i < uxReceivedBytes; i++)
         {
-            fprintf( stderr, "0x%0X ", ucRxData[ i ] );
+            fprintf(stderr, "0x%0X ", ucRxData[i]);
         }
 
-        fprintf( stderr, "\r\n" );
+        fprintf(stderr, "\r\n");
     }
 }
 /*-----------------------------------------------------------*/
 
-static void prvWriterTask( void * pvParams )
+static void prvWriterTask(void *pvParams)
 {
-    uint8_t ucTxData[ 6 ] = { 0x1, 0x2, 0x3, 0x4, 0x5, 0x6 };
+    uint8_t ucTxData[6] = {0x1, 0x2, 0x3, 0x4, 0x5, 0x6};
     size_t uxSentBytes;
 
     /* Silence warning about unused parameters. */
-    ( void ) pvParams;
+    (void)pvParams;
 
-    for( ;; )
+    for (;;)
     {
-        fprintf( stderr, "Sending 1 byte...\r\n" );
+        fprintf(stderr, "Sending 1 byte...\r\n");
 
         /*
          * TODO 3 - Send 1 byte to the stream buffer using xStreamBufferSend
@@ -153,10 +151,10 @@ static void prvWriterTask( void * pvParams )
          *
          * Assign the return value to uxSentBytes.
          */
+        uxSentBytes = xStreamBufferSend(xStreamBuffer, &(ucTxData), 1, portMAX_DELAY);
+        configASSERT(uxSentBytes == 1);
 
-        configASSERT( uxSentBytes == 1 );
-
-        fprintf( stderr, "Sending 5 bytes...\r\n" );
+        fprintf(stderr, "Sending 5 bytes...\r\n");
 
         /*
          * TODO 4 - Send 5 bytes to the stream buffer using xStreamBufferSend
@@ -170,12 +168,12 @@ static void prvWriterTask( void * pvParams )
          *
          * Assign the return value to uxSentBytes.
          */
+        uxSentBytes = xStreamBufferSend(xStreamBuffer, &(ucTxData[1]), 5, portMAX_DELAY);
+        configASSERT(uxSentBytes == 5);
 
-        configASSERT( uxSentBytes == 5 );
+        fprintf(stderr, "Finished sending data.\r\n");
 
-        fprintf( stderr, "Finished sending data.\r\n" );
-
-        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 /*-----------------------------------------------------------*/
